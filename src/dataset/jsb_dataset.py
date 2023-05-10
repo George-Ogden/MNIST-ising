@@ -94,13 +94,13 @@ class Jsb16thSeparatedDatasetFactory:
         self.info = info
 
     @cached_property
-    def train_dataset(self):
+    def train_dataset(self) -> Jsb16thSeparatedDataset:
         return Jsb16thSeparatedDataset(self.data["train"], self.info)
 
     @cached_property
-    def val_dataset(self):
+    def val_dataset(self) -> Jsb16thSeparatedDataset:
         return Jsb16thSeparatedDataset(self.data["valid"], self.info)
 
     @cached_property
-    def test_dataset(self):
+    def test_dataset(self) -> Jsb16thSeparatedDataset:
         return Jsb16thSeparatedDataset(self.data["test"], self.info)
