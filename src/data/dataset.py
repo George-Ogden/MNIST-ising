@@ -18,7 +18,6 @@ class DatasetInfo:
     min_pitch: int = 36
     max_pitch: int = 81
     resolution: float = 16 # 16th notes
-    num_instruments: int = 4
     piece_length: int = 64
     bpm: int = 15
 
@@ -34,8 +33,8 @@ class DatasetInfo:
             filename (str): midi filename
         """
         pianoroll = np.pad(pianoroll, ((0, 0), (self.min_pitch, 127-self.max_pitch), (0, 0)), mode="constant", constant_values=0)
-        tracks = [pr.BinaryTrack(pianoroll=track) for track in pianoroll.transpose(2, 0, 1)]
-        multitrack = pr.Multitrack(tracks=tracks, tempo=self.bpm, resolution=self.resolution // 2)
+        track = pr.BinaryTrack(pianoroll=pianoroll)
+        multitrack = pr.Multitrack(tracks=[track], tempo=self.bpm, resolution=self.resolution // 2)
         multitrack.write(filename)
     
     def to_pianoroll(
@@ -50,11 +49,11 @@ class DatasetInfo:
         Returns:
             np.ndarray: binary pianoroll of shape (num_timesteps, num_pitches, num_tracks)
         """        
-        pianoroll = np.zeros((len(piece), self.num_pitches, self.num_instruments), dtype=bool)
+        pianoroll = np.zeros((len(piece), self.num_pitches), dtype=bool)
         for i, chord in enumerate(piece):
-            for j, track in enumerate(chord):
+            for track in chord:
                 assert self.min_pitch <= track <= self.max_pitch, "pitch out of range"
-                pianoroll[i, track - self.min_pitch, j] = True
+                pianoroll[i, track - self.min_pitch] = True
         return pianoroll
 
 
@@ -66,7 +65,6 @@ class Jsb16thSeparatedDataset:
         self.min_pitch = info.min_pitch
         self.max_pitch = info.max_pitch
         self.resolution = info.resolution
-        self.num_instruments = info.num_instruments
         self.qpm = info.bpm
 
         # convert each piece to a pianoroll
