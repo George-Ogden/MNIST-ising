@@ -1,12 +1,18 @@
 from pytest import mark
 import numpy as np
 
-from src.dataset import DatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory
+from src.dataset import Dataset, JSBDatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory
 
 factory = Jsb16thSeparatedDatasetFactory()
 datasets = mark.parametrize("dataset", [factory.train_dataset, factory.val_dataset, factory.test_dataset])
 
-def test_datasets():
+def test_slicing():
+    dataset = Dataset(list(range(10)))
+    sliced_dataset = dataset[2:5]
+    assert isinstance(sliced_dataset, Dataset)
+    assert sliced_dataset.data == [2, 3, 4]
+
+def test_dataset_factories():
     train_dataset = factory.train_dataset
     assert isinstance(train_dataset, Jsb16thSeparatedDataset)
 
@@ -17,8 +23,7 @@ def test_datasets():
     assert isinstance(test_dataset, Jsb16thSeparatedDataset)
 
 def test_config_propagates():
-    info = DatasetInfo(
-        name="TestDataset",
+    info = JSBDatasetInfo(
         piece_length=16,
         min_pitch=4,
         max_pitch=125,
@@ -55,7 +60,7 @@ def test_dataset_random_crop():
     
     cropping_dataset = Jsb16thSeparatedDataset(
         [piece],
-        DatasetInfo(
+        JSBDatasetInfo(
             piece_length=32,
             min_pitch=0,
             max_pitch=127
@@ -72,7 +77,7 @@ def test_instrument_merging():
     
     dataset = Jsb16thSeparatedDataset(
         [piece],
-        DatasetInfo(
+        JSBDatasetInfo(
             piece_length=32,
             min_pitch=0,
             max_pitch=127
