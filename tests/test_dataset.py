@@ -1,7 +1,7 @@
 from pytest import mark
 import numpy as np
 
-from src.data.dataset import DatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory
+from src.dataset import DatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory
 
 factory = Jsb16thSeparatedDatasetFactory()
 datasets = mark.parametrize("dataset", [factory.train_dataset, factory.val_dataset, factory.test_dataset])
