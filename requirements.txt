@@ -1,0 +1,2 @@
+numpy
+git+https://github.com/George-Ogden/pypianoroll # use my version
