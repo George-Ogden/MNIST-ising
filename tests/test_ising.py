@@ -33,3 +33,18 @@ def test_ising_fit():
     assert model.count == 2
     assert (model.nodes == np.array([2, 0, 0, 2])).all()
     assert (model.edges == np.array([[2, 0, 0, 2], [0, 2, 2, 0], [0, 2, 2, 0], [2, 0, 0, 2]])).all()
+
+def test_ising_generate():
+    model = IsingModel((2,2))
+    model.fit(np.array([[[True, False], [False, True]]]), epochs=2)
+    sample = model.generate()
+    assert sample.shape == (2,2)
+    assert (sample == np.array([[True, False], [False, True]])).all()
+
+def test_J_ising_generate():
+    model = IsingModel((2,2))
+    original = np.array([[True, False], [False, True]])
+    model.fit([original, ~original], epochs=2)
+    sample = model.generate()
+    assert sample.shape == (2,2)
+    assert (sample == original).all() or (sample == ~original).all()
