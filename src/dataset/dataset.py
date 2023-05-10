@@ -32,7 +32,7 @@ class DatasetInfo:
             pianoroll (np.ndarray): numpy array of shape (num_timesteps, num_pitches, num_tracks)
             filename (str): midi filename
         """
-        pianoroll = np.pad(pianoroll, ((0, 0), (self.min_pitch, 127-self.max_pitch), (0, 0)), mode="constant", constant_values=0)
+        pianoroll = np.pad(pianoroll, ((0, 0), (self.min_pitch, 127-self.max_pitch)), mode="constant", constant_values=0)
         track = pr.BinaryTrack(pianoroll=pianoroll)
         multitrack = pr.Multitrack(tracks=[track], tempo=self.bpm, resolution=self.resolution // 2)
         multitrack.write(filename)

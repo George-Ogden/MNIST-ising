@@ -32,6 +32,7 @@ class IsingModel:
         sample[sample == 0] = 1
         # $H(\sigma) = -J \sum_{i,j} \sigma_i \sigma_j - h \sum_i \sigma_i$
         J = (self.edges / self.count) * 2 - 1
+        J[np.eye(len(J), dtype=bool)] = 0
         h = (self.nodes / self.count) * 2 - 1
         for _ in range(iterations):
             indices = np.random.permutation(len(sample))
