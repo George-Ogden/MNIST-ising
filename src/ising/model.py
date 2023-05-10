@@ -3,7 +3,7 @@ import numpy as np
 
 from typing import Tuple
 
-from ..dataset import Jsb16thSeparatedDataset
+from ..dataset import Dataset
 
 class IsingModel:
     def __init__(self, shape: Tuple[int, ...]):
@@ -13,10 +13,9 @@ class IsingModel:
         self.nodes = np.zeros((nodes), dtype=int)
         self.count = 0
 
-    def fit(self, dataset: Jsb16thSeparatedDataset, epochs: int = 10):
+    def fit(self, dataset: Dataset, epochs: int = 10):
         for epoch in trange(epochs, desc="Fitting Ising Model"):
-            for i in range(len(dataset)):
-                sample = dataset[i]
+            for sample in dataset:
                 assert sample.dtype == bool, "samples must be binary"
                 assert sample.shape == self.shape, "all samples must have the same shape"
                 self._update(sample)

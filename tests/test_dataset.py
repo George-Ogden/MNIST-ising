@@ -4,7 +4,7 @@ import numpy as np
 from src.dataset import Dataset, JSBDatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory
 
 factory = Jsb16thSeparatedDatasetFactory()
-datasets = mark.parametrize("dataset", [factory.train_dataset, factory.val_dataset, factory.test_dataset])
+jsb_datasets = mark.parametrize("dataset", [factory.train_dataset, factory.val_dataset, factory.test_dataset])
 
 def test_slicing():
     dataset = Dataset(list(range(10)))
@@ -22,7 +22,7 @@ def test_dataset_factories():
     test_dataset = factory.test_dataset
     assert isinstance(test_dataset, Jsb16thSeparatedDataset)
 
-def test_config_propagates():
+def test_jsb_config_propagates():
     info = JSBDatasetInfo(
         piece_length=16,
         min_pitch=4,
@@ -42,14 +42,14 @@ def test_config_propagates():
     sample = dataset[0]
     assert sample.shape == (16, 122)
 
-@datasets
-def test_iteration(dataset):
+@jsb_datasets
+def test_dataset_iteration(dataset):
     # check lengths of the dataset
     dataset = factory.train_dataset
     for i in range(len(dataset)):
         dataset[i]
 
-@datasets
+@jsb_datasets
 def test_data_samples(dataset):
     sample = dataset[np.random.randint(0, len(dataset))]
     assert sample.shape == (64, 46)
