@@ -1,10 +1,17 @@
 from pytest import mark
 import numpy as np
 
-from src.dataset import Dataset, JSBDatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory
+from src.dataset import Dataset, JSBDatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory, MNISTDataset, MNISTDatasetFactory
 
-factory = Jsb16thSeparatedDatasetFactory()
-jsb_datasets = mark.parametrize("dataset", [factory.train_dataset, factory.val_dataset, factory.test_dataset])
+jsb_factory = Jsb16thSeparatedDatasetFactory()
+jsb_datasets = [jsb_factory.train_dataset, jsb_factory.val_dataset, jsb_factory.test_dataset]
+
+mnist_factory = MNISTDatasetFactory()
+mnist_datasets = [mnist_factory.train_dataset, mnist_factory.test_dataset]
+
+jsb_datasets_test = mark.parametrize("dataset", jsb_datasets)
+mnist_datasets_test = mark.parametrize("dataset", mnist_datasets)
+datasets_test = mark.parametrize("dataset", jsb_datasets + mnist_datasets)
 
 def test_slicing():
     dataset = Dataset(list(range(10)))
@@ -13,13 +20,13 @@ def test_slicing():
     assert sliced_dataset.data == [2, 3, 4]
 
 def test_dataset_factories():
-    train_dataset = factory.train_dataset
+    train_dataset = jsb_factory.train_dataset
     assert isinstance(train_dataset, Jsb16thSeparatedDataset)
 
-    val_dataset = factory.val_dataset
+    val_dataset = jsb_factory.val_dataset
     assert isinstance(val_dataset, Jsb16thSeparatedDataset)
 
-    test_dataset = factory.test_dataset
+    test_dataset = jsb_factory.test_dataset
     assert isinstance(test_dataset, Jsb16thSeparatedDataset)
 
 def test_jsb_config_propagates():
@@ -42,17 +49,23 @@ def test_jsb_config_propagates():
     sample = dataset[0]
     assert sample.shape == (16, 122)
 
-@jsb_datasets
+@datasets_test
 def test_dataset_iteration(dataset):
     # check lengths of the dataset
-    dataset = factory.train_dataset
+    dataset = jsb_factory.train_dataset
     for i in range(len(dataset)):
         dataset[i]
 
-@jsb_datasets
-def test_data_samples(dataset):
+@jsb_datasets_test
+def test_jsb_data_samples(dataset):
     sample = dataset[np.random.randint(0, len(dataset))]
     assert sample.shape == (64, 46)
+    assert sample.dtype == bool
+
+@mnist_datasets_test
+def test_mnist_data_samples(dataset):
+    sample = dataset[np.random.randint(0, len(dataset))]
+    assert sample.shape == (28, 28)
     assert sample.dtype == bool
 
 def test_dataset_random_crop():
