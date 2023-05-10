@@ -1,1 +1,1 @@
-from .dataset import DatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory
+from .jsb_dataset import Dataset, JSBDatasetInfo, Jsb16thSeparatedDataset, Jsb16thSeparatedDatasetFactory

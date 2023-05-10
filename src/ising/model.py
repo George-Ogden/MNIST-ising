@@ -37,7 +37,7 @@ class IsingModel:
         for _ in range(iterations):
             indices = np.random.permutation(len(sample))
             for index in indices:
-                delta_energy = h[index] * sample[index] + 2 * J[index] * sample * sample[index]
+                delta_energy = h[index] * sample[index] + J[index] * sample * sample[index]
                 if (delta_energy).sum() <= 0:
                     sample[index] *= -1
         return sample.reshape(self.shape) > 0
