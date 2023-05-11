@@ -161,3 +161,9 @@ cython_debug/
 *-ubyte.gz
 *.gz
 *.npz
+
+# generated images
+*.gif
+*.jpeg
+*.jpg
+*.png

@@ -1,4 +1,4 @@
-from tqdm import trange
+from tqdm import tqdm
 import numpy as np
 
 from typing import Tuple
@@ -13,12 +13,11 @@ class IsingModel:
         self.nodes = np.zeros((nodes), dtype=int)
         self.count = 0
 
-    def fit(self, dataset: Dataset, epochs: int = 10):
-        for epoch in trange(epochs, desc="Fitting Ising Model"):
-            for sample in dataset:
-                assert sample.dtype == bool, "samples must be binary"
-                assert sample.shape == self.shape, "all samples must have the same shape"
-                self._update(sample)
+    def fit(self, dataset: Dataset):
+        for sample in tqdm(dataset, desc="Fitting Ising model"):
+            assert sample.dtype == bool, "samples must be binary"
+            assert sample.shape == self.shape, "all samples must have the same shape"
+            self._update(sample)
     
     def _update(self, sample: np.ndarray):
         sample = sample.reshape(-1)
@@ -26,17 +25,20 @@ class IsingModel:
         self.nodes[sample] += 1
         self.edges[sample.reshape(1, -1) == sample.reshape(-1, 1)] += 1
     
-    def generate(self, iterations: int = 100) -> np.ndarray:
+    def generate(self) -> np.ndarray:
         sample = np.sign(np.random.randn(np.prod(self.shape)))
         sample[sample == 0] = 1
         # $H(\sigma) = -J \sum_{i,j} \sigma_i \sigma_j - h \sum_i \sigma_i$
-        J = (self.edges / self.count) * 2 - 1
+        J = ((self.edges / self.count) * 2 - 1) / len(sample)
         J[np.eye(len(J), dtype=bool)] = 0
         h = (self.nodes / self.count) * 2 - 1
-        for _ in range(iterations):
+        change = True
+        while change:
+            change = False
             indices = np.random.permutation(len(sample))
             for index in indices:
-                delta_energy = h[index] * sample[index] + J[index] * sample * sample[index]
-                if (delta_energy).sum() <= 0:
+                delta_energy = h[index] * sample[index] + J[index] @ sample * sample[index]
+                if delta_energy < 0:
                     sample[index] *= -1
+                    change = True
         return sample.reshape(self.shape) > 0

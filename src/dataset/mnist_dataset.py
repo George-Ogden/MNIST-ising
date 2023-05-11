@@ -1,5 +1,7 @@
-from functools import cached_property
+from PIL import Image
 import numpy as np
+
+from functools import cached_property
 import os.path
 
 from .dataset import Dataset
@@ -7,7 +9,15 @@ from .dataset import Dataset
 path = os.path.join(os.path.dirname(__file__), "mnist.npz")
 
 class MNISTDataset(Dataset):
-    ...
+    @staticmethod
+    def save_image(image: np.ndarray, filename: str):
+        """save image to png file
+
+        Args:
+            image (np.ndarray): numpy array of shape (28, 28)
+        """
+        image = Image.fromarray(image)
+        image.save(filename)
 
 class MNISTDatasetFactory:
     """create datasets from a json file"""
