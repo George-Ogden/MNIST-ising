@@ -1,4 +1,4 @@
-from tqdm import tqdm
+from tqdm import tqdm, trange
 import numpy as np
 
 from typing import Tuple
@@ -19,6 +19,21 @@ class IsingModel:
             assert sample.shape == self.shape, "all samples must have the same shape"
             self._update(sample)
     
+    def prune(self) -> Tuple[np.ndarray, np.ndarray]:
+        h = (self.nodes / self.count) * 2 - 1
+        J = ((self.edges / self.count) * 2 - 1)
+        J[np.eye(len(J), dtype=bool)] = 0
+        for _ in trange(int(len(h) ** 1.25), desc="Pruning Ising model"):
+            cumulative = np.abs(J).sum(axis=-1)
+            weights = np.exp(cumulative)
+            i = np.random.choice(np.arange(len(J)), p=weights / weights.sum())
+            weights = np.exp(J[i] * np.sign(cumulative[i]))
+            j = np.random.choice(np.arange(len(J)), p=weights / weights.sum())
+            cumulative[i] -= J[i,j]
+            cumulative[j] -= J[i,j]
+            J[i,j] = J[j,i] = 0
+        return h, J
+    
     def _update(self, sample: np.ndarray):
         sample = sample.reshape(-1)
         self.count += 1
@@ -29,9 +44,7 @@ class IsingModel:
         sample = np.sign(np.random.randn(np.prod(self.shape)))
         sample[sample == 0] = 1
         # $H(\sigma) = -J \sum_{i,j} \sigma_i \sigma_j - h \sum_i \sigma_i$
-        J = ((self.edges / self.count) * 2 - 1) / len(sample)
-        J[np.eye(len(J), dtype=bool)] = 0
-        h = (self.nodes / self.count) * 2 - 1
+        h, J = self.prune()
         change = True
         while change:
             change = False
